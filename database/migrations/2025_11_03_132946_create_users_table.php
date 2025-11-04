@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users',function(Blueprint $table){
             $table->id();
             $table->string('name');
-            $table->string('email')-unique();
+            $table->string('email')->unique();
             $table->string('password');
             $table->enum('status',['pending','active','banned','deleted'])->default('pending');
             $table->string('phone_number')->nullable();
@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->string('activation_token')->nullable();
-            $table->string('google_id')->nullable();
+            $table->string('google_id')->nullable()->unique();
+            $table->string('facebook_id')->nullable()->unique();
             $table->timestamps();
         });
     }

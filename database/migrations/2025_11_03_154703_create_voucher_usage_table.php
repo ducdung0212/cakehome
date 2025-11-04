@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shipping_addresses', function(Blueprint $table){
+        Schema::create('voucher_usage', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('voucher_id')->constrained('vouchers')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('full_name');
-            $table->string('phone_number');
-            $table->string('address');
-            $table->boolean('default')->default(false);
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->dateTime('used_at');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shipping_addresses');
+        Schema::dropIfExists('voucher_usage');
     }
 };

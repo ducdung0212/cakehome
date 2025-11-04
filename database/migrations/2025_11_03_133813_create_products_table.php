@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
+            $table->decimal('sale_price', 10, 2)->nullable();
             $table->integer('stock')->default(0);
             $table->string('status')->default('in_stock');
             $table->string('unit')->unique(); // 1 cai, 1 set, 1 hop??? tinh sau
