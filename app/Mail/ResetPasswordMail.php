@@ -9,14 +9,10 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ActivationMail extends Mailable 
+class ResetPasswordMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $tries = 3; // Thử lại 3 lần nếu thất bại
-    public $timeout = 120; // Timeout sau 120 giây
-    public $token;
-    public $user;
     /**
      * Create a new message instance.
      */
@@ -32,7 +28,7 @@ class ActivationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Kích hoạt tài khoản',
+            subject: 'Đặt lại mật khẩu',
         );
     }
 
@@ -42,7 +38,7 @@ class ActivationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'client.email.activation',
+            view: 'client.email.reset-password',
             with: [
                 'user' => $this->user,
                 'token' => $this->token,

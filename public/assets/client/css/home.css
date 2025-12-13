@@ -1,0 +1,89 @@
+/* Category Carousel Styles */
+.category-carousel-container {
+    overflow: hidden;
+    position: relative;
+}
+
+.category-carousel {
+    display: flex;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+    scroll-behavior: smooth;
+}
+
+.category-item {
+    flex: 0 0 auto;
+    width: 300px;
+}
+
+.category-box {
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+    height: 250px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.category-box:hover {
+    transform: translateY(-5px);
+}
+
+.category-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.category-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    padding: 1.5rem;
+    color: white;
+}
+
+.category-name {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.carousel-control-custom {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px;
+    height: 45px;
+    background: white;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.carousel-control-custom:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.carousel-control-prev {
+    left: -45px;
+}
+
+.carousel-control-next {
+    right: -20px;
+}
+
+.carousel-control-custom:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}

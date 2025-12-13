@@ -57,18 +57,7 @@
                         8:00 - 22:00 (Thứ 2 - Chủ Nhật)
                     </li>
                 </ul>
-                <div class="mt-3">
-                    <h6>Đăng ký nhận tin khuyến mãi</h6>
-                    <form action="/newsletter/subscribe" method="POST" class="newsletter-form">
-                        @csrf
-                        <div class="input-group">
-                            <input type="email" name="email" class="form-control" placeholder="Email của bạn" required>
-                            <button class="btn btn-primary-custom" type="submit">
-                                <i class="bi bi-send"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                
             </div>
         </div>
         

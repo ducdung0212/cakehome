@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Account;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class UpdatePasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,33 +22,23 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|string',
-            'password' => 'required|string',
+            'current_password' => 'required',
+            'password' => 'required|min:6|confirmed'
         ];
     }
-    
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array<string, string>
-     */
     public function attributes(): array
     {
         return [
-            'email' => 'Email/số điện thoại',
-            'password' => 'Mật khẩu',
+            'current_password' => "Mật khẩu hiện tại",
+            'password' => "Mật khẩu mới"
         ];
     }
-    
-    /**
-     * Get the error messages for the defined validation rules.
-     *
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [
-            'required' => 'Vui lòng nhập :attribute',
+            'required' => ":attribute bắt buộc phải nhập!",
+            'min' => ":attribute phải có ít nhất :min kí tự",
+            'confirmed' => ":attribute không khớp"
         ];
     }
 }

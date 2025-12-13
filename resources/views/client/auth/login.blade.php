@@ -15,9 +15,9 @@
                     <form id="loginForm" action="{{ route('login.post') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label">Email hoặc Số điện thoại</label>
+                            <label class="form-label">Email</label>
                             <input type="text" class="form-control form-control-lg @error('email') is-invalid @enderror" 
-                                   name="email" placeholder="your@email.com" value="{{ old('email') }}">
+                                   name="email" placeholder="" value="{{ old('email') }}">
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

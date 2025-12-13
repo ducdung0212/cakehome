@@ -1,0 +1,73 @@
+/* Product Detail Page Styles */
+.product-image-main {
+    height: 500px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.product-thumbnail {
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.product-thumbnail:hover,
+.product-thumbnail.active {
+    border-color: var(--primary-color);
+}
+
+.quantity-input {
+    width: 60px;
+    text-align: center;
+}
+/* Container bao ngoài để cắt những phần bị tràn */
+.carousel-container-wrapper {
+    overflow: hidden; 
+    width: 100%;
+    padding: 10px 0; /* Padding trên dưới để shadow không bị cắt */
+}
+
+/* Style chung cho nút điều hướng (nếu chưa có) */
+.carousel-control-custom {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px;
+    height: 45px;
+    background: white;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.carousel-control-custom:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+.carousel-control-custom:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.carousel-control-prev { left: -45px; }
+.carousel-control-next { right: -45px; }
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+    .product-carousel-item {
+        flex: 0 0 220px !important; /* Thu nhỏ item trên mobile */
+        max-width: 220px !important;
+    }
+}

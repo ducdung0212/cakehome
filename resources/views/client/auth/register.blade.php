@@ -17,7 +17,7 @@
                         <div class="mb-3">
                             <label class="form-label">Họ và tên</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                   name="name" placeholder="Nhập họ và tên"{{ old('name') }}">
+                                   name="name" placeholder="Nhập họ và tên" value="{{ old('name') }}">
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
