@@ -24,23 +24,28 @@ class AddressRequest extends FormRequest
         return [
             'full_name' => 'required|string|max:255',
             'phone_number' => 'required|string|max:11',
-            'address'=>'required|string|max:255'
+            'province' => 'required|string|max:255',
+            'district' => 'required|string|max:255',
+            'ward' => 'required|string|max:255',
+            'address' => 'required|string|max:255'
         ];
     }
-    public function attributes():array
+    public function attributes(): array
     {
         return [
             'full_name' => 'Họ và tên người nhận',
             'phone_number' => 'Số điện thoại',
-            'address'=>'Địa chỉ'
+            'province' => 'Tỉnh/Thành phố',
+            'district' => 'Quận/Huyện',
+            'ward' => 'Phường/Xã',
+            'address' => 'Địa chỉ cụ thể'
         ];
     }
-    public function messages():array
+    public function messages(): array
     {
         return [
-            'required'=>':attribute bắt buộc phải nhập!',
-            'name.max'=>':attribute chứa tối đa :max kí tự!',
+            'required' => ':attribute bắt buộc phải nhập!',
+            'name.max' => ':attribute chứa tối đa :max kí tự!',
         ];
     }
 }
-

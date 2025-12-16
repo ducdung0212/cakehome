@@ -12,13 +12,20 @@
 @endpush
 
 @section('content')
+    @php
+        $heroBg =
+            $siteSettings['home_hero_background_url'] ??
+            'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1600';
+        $heroTitle = $siteSettings['home_hero_title'] ?? 'HƯƠNG VỊ PHÉP MÀU';
+        $heroSubtitle = $siteSettings['home_hero_subtitle'] ?? 'Khám phá bộ sưu tập bánh ngọt cao cấp';
+        $announcement = $siteSettings['home_announcement_text'] ?? null;
+    @endphp
     <!-- Hero Section -->
-    <section class="hero-section"
-        style="background-image: url('https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1600');">
+    <section class="hero-section" style="background-image: url('{{ $heroBg }}');">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 class="hero-title">HƯƠNG VỊ PHÉP MÀU</h1>
-            <p class="hero-subtitle">Khám phá bộ sưu tập bánh ngọt cao cấp</p>
+            <h1 class="hero-title">{{ $heroTitle }}</h1>
+            <p class="hero-subtitle">{{ $heroSubtitle }}</p>
             <a href="/products" class="btn btn-primary-custom btn-lg me-3">
                 <i class="bi bi-shop"></i> Khám Phá Ngay
             </a>
@@ -29,12 +36,13 @@
     </section>
 
     <!-- Announcement Bar -->
-    <div class="bg-warning text-dark text-center py-2">
-        <div class="container">
-            <i class="bi bi-gift"></i> <strong>Ưu đãi đặc biệt:</strong> Giảm 20% cho đơn hàng đầu tiên! Mã:
-            <strong>WELCOME20</strong>
+    @if (!empty($announcement))
+        <div class="bg-warning text-dark text-center py-2">
+            <div class="container">
+                <i class="bi bi-gift"></i> {!! e($announcement) !!}
+            </div>
         </div>
-    </div>
+    @endif
 
     <!-- Categories Section -->
     <section class="py-5 bg-light-custom">
@@ -55,8 +63,7 @@
                                 <a href="{{ route('products.index', ['categories' => [$category->id]]) }}"
                                     class="text-decoration-none">
                                     <div class="category-box">
-                                        <img src="{{ asset('storage/Categories/' . $category->images) }}"
-                                            alt="{{ $category->name }}">
+                                        <img src="{{ asset('storage/' . $category->images) }}" alt="{{ $category->name }}">
                                         <div class="category-overlay">
                                             <h3 class="category-name">{{ $category->name }}</h3>
                                         </div>
@@ -87,16 +94,36 @@
 
                             <!-- Wishlist button -->
                             <div class="position-absolute top-0 end-0 p-2" style="z-index: 10;">
-                                @include('client.partials.wishlist-button', [
+                                @include('client.components.wishlist-button', [
                                     'productId' => $product->id,
                                     'active' => in_array($product->id, $wishlistProductIds),
                                 ])
                             </div>
 
-                            <img src="{{ $product->firstImage ? asset('storage/Product/' . $product->firstImage->image) : asset('images/no-image-product.png') }}"
+                            <img src="{{ $product->firstImage ? asset('storage/' . $product->firstImage->image) : asset('images/no-image-product.png') }}"
                                 class="product-image" alt="{{ $product->name }} ">
                             <div class="card-body">
                                 <h5 class="product-title">{{ $product->name }}</h5>
+                                <div class="mb-2">
+                                    <span class="text-warning">
+                                        @php
+                                            $avgRating = round($product->reviews_avg ?? 0, 1);
+                                        @endphp
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= floor($avgRating))
+                                                <i class="bi bi-star-fill"></i>
+                                            @elseif ($i <= ceil($avgRating) && $avgRating - floor($avgRating) >= 0.5)
+                                                <i class="bi bi-star-half"></i>
+                                            @else
+                                                <i class="bi bi-star"></i>
+                                            @endif
+                                        @endfor
+                                    </span>
+                                    <small class="text-muted ms-1">
+                                        ({{ $product->reviews_count ?? 0 }}) | Đã bán:
+                                        {{ number_format($product->total_sold ?? 0) }}
+                                    </small>
+                                </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         @if ($product->sale_price)
@@ -110,7 +137,7 @@
                                                 class="product-price">{{ number_format($product->price, 0, ',', '.') }}VNĐ</span>
                                         @endif
                                     </div>
-                                    @include('client.partials.addToCart-button', [
+                                    @include('client.components.addToCart-button', [
                                         'productId' => $product->id,
                                         'stock' => $product->stock, // Truyền số lượng tồn kho để check hết hàng
                                         'class' => 'ms-2', // Thêm class margin nếu cần

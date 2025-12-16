@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class VoucherUsage extends Model
 {
+    protected $table = 'voucher_usage';
+
     protected $fillable = ['voucher_id', 'user_id', 'order_id', 'used_at'];
     public function voucher()
     {
@@ -20,6 +22,6 @@ class VoucherUsage extends Model
         return $this->belongsTo(Order::class);
     }
     protected $casts = [
-    'used_at' => 'datetime'
-];
+        'used_at' => 'datetime'
+    ];
 }

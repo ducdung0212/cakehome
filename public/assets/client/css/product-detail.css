@@ -23,11 +23,13 @@
     width: 60px;
     text-align: center;
 }
+
 /* Container bao ngoài để cắt những phần bị tràn */
 .carousel-container-wrapper {
-    overflow: hidden; 
+    overflow: hidden;
     width: 100%;
-    padding: 10px 0; /* Padding trên dưới để shadow không bị cắt */
+    padding: 10px 0;
+    /* Padding trên dưới để shadow không bị cắt */
 }
 
 /* Style chung cho nút điều hướng (nếu chưa có) */
@@ -52,7 +54,7 @@
 
 .carousel-control-custom:hover {
     background-color: #f8f9fa;
-    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .carousel-control-custom:disabled {
@@ -61,13 +63,48 @@
     box-shadow: none;
 }
 
-.carousel-control-prev { left: -45px; }
-.carousel-control-next { right: -45px; }
+.carousel-control-prev {
+    left: -45px;
+}
+
+.carousel-control-next {
+    right: -45px;
+}
 
 /* Responsive cho mobile */
 @media (max-width: 768px) {
     .product-carousel-item {
-        flex: 0 0 220px !important; /* Thu nhỏ item trên mobile */
+        flex: 0 0 220px !important;
+        /* Thu nhỏ item trên mobile */
         max-width: 220px !important;
     }
+}
+
+/* Rating Input Styles */
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.rating-input input[type="radio"] {
+    display: none;
+}
+
+.rating-input .star-label {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #ddd;
+    transition: color 0.2s;
+}
+
+.rating-input input[type="radio"]:checked~.star-label,
+.rating-input .star-label:hover,
+.rating-input .star-label:hover~.star-label {
+    color: #ffc107;
+}
+
+.rating-input input[type="radio"]:checked+.star-label {
+    color: #ffc107;
 }

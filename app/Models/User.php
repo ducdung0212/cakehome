@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     use Notifiable;
-    
+
     protected $fillable = [
         'name',
         'email',
@@ -16,23 +16,22 @@ class User extends Authenticatable
         'status',
         'phone_number',
         'role_id',
-        'avatar',
         'address',
         'activation_token',
         'google_id',
         'facebook_id'
     ];
-    
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
-    
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    
+
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -53,7 +52,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
-    public function voucherUsage(){
+    public function voucherUsage()
+    {
         return $this->hasMany(VoucherUsage::class);
     }
     public function notifications()
@@ -82,5 +82,4 @@ class User extends Authenticatable
     {
         return $this->status === 'deleted';
     }
-
 }

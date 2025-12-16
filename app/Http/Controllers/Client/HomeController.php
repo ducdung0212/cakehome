@@ -20,6 +20,12 @@ class HomeController extends Controller
             ->orderByDesc('total_sold')
             ->limit(8)
             ->with('firstImage')
+            ->withCount(['reviews as reviews_count' => function ($query) {
+                $query->where('status', 'approved');
+            }])
+            ->withAvg(['reviews as reviews_avg' => function ($query) {
+                $query->where('status', 'approved');
+            }], 'rating')
             ->get();
 
         // Get wishlist product IDs for current user

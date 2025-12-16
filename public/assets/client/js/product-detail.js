@@ -23,6 +23,98 @@ function addToWishlist(productId) {
     showSuccess('Đã thêm vào yêu thích', 'Sản phẩm đã được thêm vào danh sách yêu thích');
 }
 
+// Character counter for review comment
+document.addEventListener('DOMContentLoaded', function () {
+    const commentTextarea = document.getElementById('comment');
+    const charCount = document.getElementById('charCount');
+
+    if (commentTextarea && charCount) {
+        commentTextarea.addEventListener('input', function () {
+            charCount.textContent = this.value.length;
+        });
+    }
+
+    // Review form submission
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitReviewBtn');
+            const originalText = submitBtn.innerHTML;
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
+
+            const formData = new FormData(this);
+
+            fetch('/reviews', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    // Check if response is ok
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw err;
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message || 'Đánh giá của bạn đã được gửi và đang chờ duyệt!');
+
+                        // Reset form
+                        reviewForm.reset();
+                        document.getElementById('charCount').textContent = '0';
+
+                        // Reload page after 2 seconds to show updated reviews
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        // Handle validation errors
+                        if (data.errors) {
+                            let errorMessage = '';
+                            for (let field in data.errors) {
+                                errorMessage += data.errors[field].join(', ') + '<br>';
+                            }
+                            toastr.error(errorMessage || data.message);
+                        } else {
+                            toastr.error(data.message || 'Có lỗi xảy ra. Vui lòng thử lại!');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (error.message) {
+                        toastr.error(error.message);
+                    } else if (error.errors) {
+                        let errorMessage = '';
+                        for (let field in error.errors) {
+                            errorMessage += error.errors[field].join(', ') + ' ';
+                        }
+                        toastr.error(errorMessage);
+                    } else {
+                        toastr.error('Có lỗi xảy ra. Vui lòng thử lại!');
+                    }
+                })
+                .finally(() => {
+                    // Restore button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+        });
+    }
+});
+
 function submitReview() {
     const rating = document.querySelector('input[name="rating"]:checked');
     const comment = document.getElementById('reviewComment').value.trim();

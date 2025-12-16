@@ -8,8 +8,6 @@ use App\Http\Requests\Account\UpdatePasswordRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\Order;
 use App\Models\ShippingAddress;
 
 class AccountController extends Controller
@@ -49,8 +47,36 @@ class AccountController extends Controller
 
     public function orders()
     {
-        $orders = Auth::user()->orders()->orderBy('created_at', 'desc')->paginate(10);
+        $orders = Auth::user()->orders()
+            ->with(['payment', 'orderItems'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
         return view('client.account.orders', compact('orders'));
+    }
+
+    public function orderDetail($id)
+    {
+        $order = Auth::user()->orders()
+            ->with([
+                'orderItems.product.images',
+                'shippingAddress',
+                'payment',
+                'orderStatusHistories' => function ($query) {
+                    $query->orderBy('created_at', 'desc');
+                }
+            ])
+            ->findOrFail($id);
+
+        // Load thông tin review của user cho mỗi sản phẩm trong order
+        $reviewedProductIds = [];
+        if ($order->status === 'completed') {
+            $reviewedProductIds = Auth::user()->reviews()
+                ->whereIn('product_id', $order->orderItems->pluck('product_id'))
+                ->pluck('product_id')
+                ->toArray();
+        }
+
+        return view('client.account.order-detail', compact('order', 'reviewedProductIds'));
     }
 
     public function changePassword()
@@ -76,13 +102,18 @@ class AccountController extends Controller
     public function addAddress(AddressRequest $request)
     {
         $validated = $request->validated();
-        if($request->has('default')){
-            ShippingAddress::where('user_id',Auth::id())->update(['default'=>0]);
+
+        if ($request->has('default')) {
+            ShippingAddress::where('user_id', Auth::id())->update(['default' => 0]);
         }
+
         ShippingAddress::create([
             'user_id' => Auth::id(),
             'full_name' => $validated['full_name'],
             'phone_number' => $validated['phone_number'],
+            'province' => $validated['province'],
+            'district' => $validated['district'],
+            'ward' => $validated['ward'],
             'address' => $validated['address'],
             'default' => $request->has('default') ? 1 : 0
         ]);
@@ -91,25 +122,32 @@ class AccountController extends Controller
     }
     public function deleteAddress($id)
     {
-        ShippingAddress::where('user_id', Auth::id())->where('id',$id)->delete();
+        ShippingAddress::where('user_id', Auth::id())->where('id', $id)->delete();
         return redirect()->back()->with('success', 'Đã xóa địa chỉ thành công!');
     }
     public function editAddress(AddressRequest $request, $id)
     {
         $validated = $request->validated();
-        $address =  ShippingAddress::where('user_id', Auth::id())->where('id',$id)->firstOrFail();
+
+        $address = ShippingAddress::where('user_id', Auth::id())->where('id', $id)->firstOrFail();
+
         $address->update([
             'full_name' => $validated['full_name'],
             'phone_number' => $validated['phone_number'],
+            'province' => $validated['province'],
+            'district' => $validated['district'],
+            'ward' => $validated['ward'],
             'address' => $validated['address'],
             'default' => $request->has('default') ? 1 : 0
         ]);
-        return back()->with('success','Đã cập nhật địa chỉ thành công!');
+
+        return back()->with('success', 'Đã cập nhật địa chỉ thành công!');
     }
-    public function setDefaultAddress($id){
-        $address=ShippingAddress::where('user_id',Auth::id())->where('id',$id)->firstOrFail();
-        ShippingAddress::where('user_id',Auth::id())->update(['default'=>0]);
-        $address->update(['default'=>1]);
-        return back()->with('success','Đổi địa chỉ mặc định thành công! ');
+    public function setDefaultAddress($id)
+    {
+        $address = ShippingAddress::where('user_id', Auth::id())->where('id', $id)->firstOrFail();
+        ShippingAddress::where('user_id', Auth::id())->update(['default' => 0]);
+        $address->update(['default' => 1]);
+        return back()->with('success', 'Đổi địa chỉ mặc định thành công! ');
     }
 }

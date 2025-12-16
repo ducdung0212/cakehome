@@ -1,0 +1,218 @@
+ :root {
+     /* Màu xanh dịu (Soft Blue) thay cho màu tím gắt */
+     --primary-color: #60a5fa;
+     --primary-hover: #3b82f6;
+     --text-color: #475569;
+     --bg-body: #f8f9fa;
+     /* Màu nền trắng xám rất nhạt */
+ }
+
+ body {
+     background-color: var(--bg-body);
+     /* Thêm họa tiết chấm bi mờ để nền trắng đỡ nhàm chán (tùy chọn) */
+     background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+     background-size: 20px 20px;
+
+     min-height: 100vh;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+     color: var(--text-color);
+ }
+
+ .login-container {
+     width: 100%;
+     max-width: 420px;
+     /* Thu gọn chiều rộng một chút cho thanh thoát */
+     padding: 15px;
+ }
+
+ .login-card {
+     background: white;
+     border-radius: 16px;
+     /* Shadow mềm hơn, lan tỏa rộng hơn */
+     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+     border: 1px solid rgba(0, 0, 0, 0.02);
+     overflow: hidden;
+ }
+
+ .login-header {
+     /* Loại bỏ background gradient đậm, chuyển sang nền trắng */
+     background: white;
+     padding: 40px 30px 20px 30px;
+     text-align: center;
+ }
+
+ .login-header img {
+     width: 70px;
+     height: 70px;
+     margin-bottom: 15px;
+     /* Thêm shadow nhẹ cho logo */
+     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+ }
+
+ .login-header h3 {
+     margin: 0;
+     font-weight: 700;
+     font-size: 1.5rem;
+     color: #1e293b;
+     /* Màu chữ đậm cho tiêu đề */
+ }
+
+ .login-header p {
+     margin: 8px 0 0;
+     color: #94a3b8;
+     font-size: 0.9rem;
+ }
+
+ .login-body {
+     padding: 20px 35px 40px 35px;
+ }
+
+ .form-label {
+     font-weight: 500;
+     color: #334155;
+     font-size: 0.9rem;
+     margin-bottom: 6px;
+ }
+
+ .form-control {
+     padding: 10px 15px;
+     border-radius: 8px;
+     border: 1px solid #e2e8f0;
+     background-color: #f8fafc;
+     /* Input có nền xám cực nhạt */
+     font-size: 0.95rem;
+     transition: all 0.2s ease;
+ }
+
+ .form-control:focus {
+     background-color: white;
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+     /* Shadow xanh nhạt */
+ }
+
+ .input-group-text {
+     background: #f8fafc;
+     border: 1px solid #e2e8f0;
+     border-right: none;
+     border-radius: 8px 0 0 8px;
+     color: #94a3b8;
+ }
+
+ .input-group .form-control {
+     border-left: none;
+     border-radius: 0 8px 8px 0;
+ }
+
+ .input-group:focus-within .input-group-text {
+     border-color: var(--primary-color);
+     background: white;
+     color: var(--primary-color);
+ }
+
+ .btn-login {
+     width: 100%;
+     padding: 12px;
+     background: var(--primary-color);
+     border: none;
+     border-radius: 8px;
+     color: white;
+     font-weight: 600;
+     font-size: 0.95rem;
+     transition: all 0.3s ease;
+ }
+
+ .btn-login:hover {
+     background: var(--primary-hover);
+     transform: translateY(-1px);
+     box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+ }
+
+ .form-check-input:checked {
+     background-color: var(--primary-color);
+     border-color: var(--primary-color);
+ }
+
+ .text-primary-custom {
+     color: var(--primary-color);
+ }
+
+ .divider {
+     text-align: center;
+     margin: 25px 0;
+     position: relative;
+ }
+
+ .divider::before {
+     content: '';
+     position: absolute;
+     top: 50%;
+     left: 0;
+     right: 0;
+     height: 1px;
+     background: #f1f5f9;
+ }
+
+ .divider span {
+     background: white;
+     padding: 0 10px;
+     position: relative;
+     color: #cbd5e1;
+     font-size: 0.85rem;
+ }
+
+ /* Chỉnh màu nút quay về trang chủ vì nền giờ là màu sáng */
+ .back-to-site {
+     text-align: center;
+     margin-top: 25px;
+ }
+
+ .back-to-site a {
+     color: #64748b;
+     /* Màu xám thay vì trắng */
+     text-decoration: none;
+     font-weight: 500;
+     font-size: 0.9rem;
+     display: inline-flex;
+     align-items: center;
+     gap: 6px;
+     padding: 8px 16px;
+     border-radius: 50px;
+     transition: all 0.2s ease;
+ }
+
+ .back-to-site a:hover {
+     background: white;
+     color: var(--primary-color);
+     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+     transform: translateY(-1px);
+ }
+
+ .password-toggle {
+     cursor: pointer;
+     transition: color 0.3s ease;
+ }
+
+ .password-toggle:hover {
+     color: var(--primary-color);
+ }
+
+ /* Animation nhẹ nhàng hơn */
+ @keyframes fadeIn {
+     from {
+         opacity: 0;
+         transform: translateY(10px);
+     }
+
+     to {
+         opacity: 1;
+         transform: translateY(0);
+     }
+ }
+
+ .login-container {
+     animation: fadeIn 0.8s ease-out;
+ }

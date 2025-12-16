@@ -12,7 +12,8 @@ use Illuminate\Queue\SerializesModels;
 class ResetPasswordMail extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public $token;
+    public $user;
     /**
      * Create a new message instance.
      */

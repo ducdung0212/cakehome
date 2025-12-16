@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
-use App\Models\Cart; // [MỚI] Đừng quên import Model Cart
+use App\Models\CartItem; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -65,7 +65,7 @@ class AuthController extends Controller
                 if (!empty($sessionCart)) {
                     foreach ($sessionCart as $productId => $details) {
                         // Tìm xem trong Database user này đã có sản phẩm này chưa
-                        $dbCart = Cart::where('user_id', Auth::id())
+                        $dbCart = CartItem::where('user_id', Auth::id())
                                       ->where('product_id', $productId)
                                       ->first();
 
@@ -75,7 +75,7 @@ class AuthController extends Controller
                             $dbCart->save();
                         } else {
                             // Nếu chưa có -> Tạo mới
-                            Cart::create([
+                            CartItem::create([
                                 'user_id' => Auth::id(),
                                 'product_id' => $productId,
                                 'quantity' => $details['quantity']

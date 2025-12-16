@@ -34,13 +34,13 @@
 </head>
 
 <body>
-    @include('client.partials.header')
+    @include('client.layouts.header')
 
     <main>
         @yield('content')
     </main>
 
-    @include('client.partials.footer')
+    @include('client.layouts.footer')
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

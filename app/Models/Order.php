@@ -6,19 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    protected $fillable=[
+    protected $fillable = [
         'user_id',
         'total_price',
         'subtotal_price',
         'status',
         'shipping_address_id',
         'delivery_method',
-        'delivery_date',
-        'delivery_time',
+        'delivery_at',
         'voucher_id',
         'discount_amount',
         'notes'
     ];
+    public $status_notes;
+    
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -44,8 +45,8 @@ class Order extends Model
         return $this->hasMany(VoucherUsage::class);
     }
     protected $casts = [
-    'delivery_date' => 'date',
-    'created_at' => 'datetime',
-    'updated_at' => 'datetime'
-];
+        'delivery_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
 }

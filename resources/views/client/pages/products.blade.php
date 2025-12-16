@@ -19,6 +19,38 @@
     <!-- Products Section -->
     <section class="py-5">
         <div class="container">
+            <!-- Search Bar -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <form action="{{ route('products.index') }}" method="GET" id="searchForm">
+                                <div class="input-group input-group-lg">
+                                    <input type="text" name="q" class="form-control"
+                                        value="{{ $searchQuery ?? '' }}"
+                                        placeholder="Tìm kiếm sản phẩm theo tên, danh mục...">
+                                    <button class="btn btn-primary-custom" type="submit">
+                                        <i class="bi bi-search"></i> Tìm Kiếm
+                                    </button>
+                                    @if (!empty($searchQuery))
+                                        <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">
+                                            <i class="bi bi-x-lg"></i> Xóa
+                                        </a>
+                                    @endif
+                                </div>
+                            </form>
+                            @if (!empty($searchQuery))
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        Kết quả tìm kiếm cho: <strong>"{{ $searchQuery }}"</strong>
+                                    </small>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row">
                 <!-- Sidebar Filter -->
 
@@ -113,10 +145,10 @@
 
 
                                     <div class="position-relative">
-                                        <img src="{{ $product->firstImage ? asset('storage/Product/' . $product->firstImage->image) : asset('images/no-image-product.png') }}"
+                                        <img src="{{ $product->firstImage ? asset('storage/' . $product->firstImage->image) : asset('images/no-image-product.png') }}"
                                             class="product-image" alt="{{ $product->name }}">
                                         <div class="position-absolute top-0 start-0 p-2">
-                                            @include('client.partials.wishlist-button', [
+                                            @include('client.components.wishlist-button', [
                                                 'productId' => $product->id,
                                                 'active' => in_array($product->id, $wishlistProductIds),
                                             ])
@@ -125,6 +157,25 @@
 
                                     <div class="card-body">
                                         <h5 class="product-title">{{ $product->name }}</h5>
+                                        <div class="mb-2">
+                                            <span class="text-warning">
+                                                @php
+                                                    $avgRating = round($product->reviews_avg ?? 0, 1);
+                                                @endphp
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    @if ($i <= floor($avgRating))
+                                                        <i class="bi bi-star-fill"></i>
+                                                    @elseif ($i <= ceil($avgRating) && $avgRating - floor($avgRating) >= 0.5)
+                                                        <i class="bi bi-star-half"></i>
+                                                    @else
+                                                        <i class="bi bi-star"></i>
+                                                    @endif
+                                                @endfor
+                                            </span>
+                                            <small class="text-muted ms-1">
+                                                ({{ $product->reviews_count ?? 0 }})
+                                            </small>
+                                        </div>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 @if ($product->sale_price && $product->sale_price < $product->price)
@@ -138,10 +189,10 @@
                                                         class="product-price">{{ number_format($product->price, 0, ',', '.') }}VNĐ</span>
                                                 @endif
                                             </div>
-                                            @include('client.partials.addToCart-button', [
+                                            @include('client.components.addToCart-button', [
                                                 'productId' => $product->id,
-                                                'stock' => $product->stock, 
-                                                'class' => 'ms-2', 
+                                                'stock' => $product->stock,
+                                                'class' => 'ms-2',
                                             ])
                                         </div>
                                     </div>

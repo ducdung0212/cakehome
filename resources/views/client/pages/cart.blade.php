@@ -5,6 +5,9 @@
 @section('title', 'Giỏ Hàng - CakeHome')
 
 @section('content')
+    @php
+        $showVouchers = ($siteSettings['client_show_vouchers'] ?? '1') === '1';
+    @endphp
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="bg-light py-3">
         <div class="container">
@@ -36,7 +39,7 @@
 
                                     <div class="row align-items-center">
                                         <div class="col-md-2">
-                                            <img src="{{ $item->product->firstImage ? asset('storage/Product/' . $item->product->firstImage->image) : asset('images/no-image-product.png') }}"
+                                            <img src="{{ $item->product->firstImage ? asset('storage/' . $item->product->firstImage->image) : asset('images/no-image-product.png') }}"
                                                 class="img-fluid rounded" alt="Product">
                                         </div>
                                         <div class="col-md-4">
@@ -60,14 +63,14 @@
                                         <div class="col-md-2">
                                             <div class="input-group input-group-sm">
                                                 <button class="btn btn-outline-secondary" type="button"
-                                                    onclick="updateQuantity({{ $item->product_id }}, {{ $item->quantity }}, 'decrease', {{ $item->product->stock }})">
+                                                    onclick="updateQuantity({{ $item->product_id }}, 'decrease', {{ $item->product->stock }})">
                                                     <i class="bi bi-dash"></i>
                                                 </button>
                                                 <input type="text" class="form-control text-center"
                                                     id="qty-{{ $item->product_id }}" value="{{ $item->quantity }}"
                                                     readonly style="background-color: white;">
                                                 <button class="btn btn-outline-secondary" type="button"
-                                                    onclick="updateQuantity({{ $item->product_id }}, {{ $item->quantity }}, 'increase', {{ $item->product->stock }})">
+                                                    onclick="updateQuantity({{ $item->product_id }}, 'increase', {{ $item->product->stock }})">
                                                     <i class="bi bi-plus"></i>
                                                 </button>
                                             </div>
@@ -116,53 +119,58 @@
                             <div class="card-body">
                                 <h5 class="card-title mb-4">Tóm Tắt Đơn Hàng</h5>
 
-                                <!-- Voucher -->
-                                <div class="mb-3">
-                                    <label class="form-label">Mã Giảm Giá</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Nhập mã">
-                                        <button class="btn btn-primary-custom">Áp Dụng</button>
-                                    </div>
-                                </div>
-
                                 <hr>
+
+                                <!-- Voucher Input -->
+                                @if ($showVouchers)
+                                    <div class="mb-3">
+                                        <form action="{{ route('cart.index') }}" method="GET">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" name="voucher_code"
+                                                    placeholder="Mã giảm giá"
+                                                    value="{{ old('voucher_code', $voucher_code ?? '') }}">
+                                                <button class="btn btn-outline-secondary" type="submit">Áp dụng</button>
+                                            </div>
+                                            @if (!empty($voucher_error))
+                                                <small class="text-danger d-block mt-2">{{ $voucher_error }}</small>
+                                            @endif
+                                        </form>
+                                    </div>
+                                @endif
 
                                 <!-- Price Details -->
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span>Tạm tính (3 sản phẩm):</span>
-                                    <span>2.700.000 đ</span>
+                                    <span>Tạm tính (<span id="total-quantity">{{ $totalQuantity }}</span> sản phẩm):</span>
+                                    <span id="subtotal">{{ number_format($subtotal_price, 0, ',', '.') }} VND</span>
                                 </div>
-                                <div class="d-flex justify-content-between mb-2">
+                                <div class="d-flex justify-content-between mb-2" id="discount-row"
+                                    style="{{ $discount_amount > 0 ? '' : 'display: none;' }}">
                                     <span>Giảm giá:</span>
-                                    <span class="text-success">-270.000 đ</span>
+                                    <span class="text-success"
+                                        id="discount">-{{ number_format($discount_amount, 0, ',', '.') }}
+                                        VND</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Phí vận chuyển:</span>
-                                    <span class="text-success">Miễn phí</span>
+                                    <span id="shipping-fee" class="{{ $shippingFee == 0 ? 'text-success' : '' }}">
+                                        {{ $shippingFee == 0 ? 'Miễn phí' : number_format($shippingFee, 0, ',', '.') . ' VND' }}
+                                    </span>
                                 </div>
 
                                 <hr>
 
                                 <div class="d-flex justify-content-between mb-3">
                                     <strong>Tổng Cộng:</strong>
-                                    <strong class="text-primary-custom fs-4">2.430.000 đ</strong>
+                                    <strong class="text-primary-custom fs-4"
+                                        id="total">{{ number_format($total_price, 0, ',', '.') }}
+                                        VND</strong>
                                 </div>
 
                                 <div class="d-grid gap-2">
-                                    <a href="/checkout" class="btn btn-primary-custom btn-lg">
+                                    <a href="{{ route('checkout.index', $showVouchers && !empty($voucher_code) ? ['voucher_code' => $voucher_code] : []) }}"
+                                        class="btn btn-primary-custom btn-lg">
                                         <i class="bi bi-credit-card"></i> Thanh Toán
                                     </a>
-                                    <button class="btn btn-outline-custom">
-                                        <i class="bi bi-paypal"></i> PayPal
-                                    </button>
-                                </div>
-
-                                <div class="mt-3 p-3 bg-light rounded">
-                                    <small class="text-muted">
-                                        <i class="bi bi-shield-check text-success"></i>
-                                        <strong>Thanh toán an toàn</strong><br>
-                                        Thông tin của bạn được mã hóa và bảo mật
-                                    </small>
                                 </div>
                             </div>
                         </div>

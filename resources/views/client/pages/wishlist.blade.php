@@ -32,20 +32,33 @@
                             <div class="product-card card h-100 position-relative">
                                 <!-- Remove from Wishlist Button -->
                                 <div class="position-absolute" style="top: 10px; right: 10px; z-index: 10;">
-                                    @include('client.partials.wishlist-button', [
+                                    @include('client.components.wishlist-button', [
                                         'productId' => $wishlist->product->id,
                                         'active' => true,
                                     ])
                                 </div>
-                                <img src="{{ $wishlist->product->firstImage ? asset('storage/Product/' . $wishlist->product->firstImage->image) : asset('images/no-image-product.png') }}"
+                                <img src="{{ $wishlist->product->firstImage ? asset('storage/' . $wishlist->product->firstImage->image) : asset('images/no-image-product.png') }}"
                                     class="product-image" alt="{{ $wishlist->product->name }}">
                                 <div class="card-body">
                                     <span
                                         class="badge bg-light text-dark mb-2">{{ $wishlist->product->category->name }}</span>
                                     <h5 class="product-title">{{ $wishlist->product->name }}</h5>
                                     <div class="product-rating mb-2">
-
-                                        <span class="text-muted">({{ $wishlist->product->stock }})</span>
+                                        <span class="text-warning">
+                                            @php
+                                                $avgRating = round($wishlist->product->reviews_avg ?? 0, 1);
+                                            @endphp
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                @if ($i <= floor($avgRating))
+                                                    <i class="bi bi-star-fill"></i>
+                                                @elseif ($i <= ceil($avgRating) && $avgRating - floor($avgRating) >= 0.5)
+                                                    <i class="bi bi-star-half"></i>
+                                                @else
+                                                    <i class="bi bi-star"></i>
+                                                @endif
+                                            @endfor
+                                        </span>
+                                        <small class="text-muted">({{ $wishlist->product->reviews_count ?? 0 }})</small>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <div>
@@ -69,9 +82,12 @@
 
                                 <div class="card-footer bg-transparent border-0 pt-0">
                                     <div class="d-grid gap-2">
-                                        <button class="btn btn-primary-custom">
-                                            <i class="bi bi-cart-plus"></i> Thêm Vào Giỏ
-                                        </button>
+                                        @include('client.components.addToCart-button', [
+                                            'productId' => $wishlist->product->id,
+                                            'stock' => $wishlist->product->stock,
+                                            'class' => 'ms-2',
+                                            'text' => 'Thêm vào giỏ',
+                                        ])
                                         <a href="/products/" class="btn btn-outline-custom btn-sm">
                                             <i class="bi bi-eye"></i> Chi Tiết
                                         </a>
@@ -118,4 +134,67 @@
         </div>
 
     </section>
+
+    @push('scripts')
+        <script>
+            function addAllToCart() {
+                if (confirm('Đồng ý thêm tất cả sản phẩm vào giỏ hàng?')) {
+                    fetch('/wishlist/add-all-to-cart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success(data.message);
+                                // Cập nhật số lượng giỏ hàng nếu có
+                                setTimeout(() => {
+                                    window.location.href = '/cart';
+                                }, 1500);
+                            } else {
+                                toastr.error(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            toastr.error('Có lỗi xảy ra!');
+                        });
+                }
+            }
+
+            function clearWishlist() {
+                if (confirm('Bạn có chắc muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?')) {
+                    fetch('/wishlist/clear-all', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success(data.message);
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1500);
+                            } else {
+                                toastr.error(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            toastr.error('Có lỗi xảy ra!');
+                        });
+                }
+            }
+        </script>
+    @endpush
 @endsection

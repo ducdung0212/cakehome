@@ -55,7 +55,7 @@ function removeFromCart(productId, btnElement) {
     if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
 
     fetch('/cart/remove', {
-        method: 'POST', // Hoặc DELETE tuỳ route bạn định nghĩa
+        method: 'POST', 
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': csrfToken
@@ -69,7 +69,7 @@ function removeFromCart(productId, btnElement) {
                 updateCartCount(data.cart_count);
 
                 // Xóa dòng sản phẩm đó khỏi giao diện (DOM)
-                const rowItem = document.getElementById(`cart-item-${productId}`);
+                const rowItem = document.getElementById('cart-item-${productId}');
                 if (rowItem) {
                     rowItem.remove();
                 }
@@ -79,9 +79,9 @@ function removeFromCart(productId, btnElement) {
                     location.reload();
                 }
 
-                // Cập nhật lại tổng tiền (Nếu có element hiển thị tổng)
-                if (data.total_amount && document.getElementById('cart-total')) {
-                    document.getElementById('cart-total').innerText = data.total_amount;
+                // Cập nhật tổng tiền
+                if (data.cart_summary) {
+                    updateCartSummary(data.cart_summary);
                 }
             }
         });
@@ -98,7 +98,12 @@ function updateCartCount(count) {
 /**
  * 3. Hàm Cập nhật số lượng sản phẩm trong giỏ hàng
  */
-function updateQuantity(productId, currentQty, action, maxStock) {
+function updateQuantity(productId, action, maxStock) {
+    // Đọc giá trị hiện tại từ input
+    const qtyInput = document.getElementById(`qty-${productId}`);
+    if (!qtyInput) return;
+
+    const currentQty = parseInt(qtyInput.value) || 1;
     let newQty = currentQty;
 
     if (action === 'increase') {
@@ -116,10 +121,7 @@ function updateQuantity(productId, currentQty, action, maxStock) {
     }
 
     // Cập nhật UI ngay lập tức
-    const qtyInput = document.getElementById(`qty-${productId}`);
-    if (qtyInput) {
-        qtyInput.value = newQty;
-    }
+    qtyInput.value = newQty;
 
     // Gọi API cập nhật
     fetch('/cart/update', {
@@ -138,8 +140,11 @@ function updateQuantity(productId, currentQty, action, maxStock) {
             if (data.success) {
                 toastr.success(data.message);
                 updateCartCount(data.cart_count);
-                // Có thể reload trang để cập nhật tổng tiền
-                // location.reload();
+
+                // Cập nhật tổng tiền
+                if (data.cart_summary) {
+                    updateCartSummary(data.cart_summary);
+                }
             } else {
                 // Rollback nếu lỗi
                 if (qtyInput) {
@@ -188,4 +193,54 @@ function clearCart() {
             console.error(err);
             toastr.error('Lỗi kết nối server');
         });
+}
+
+/**
+ * 5. Hàm cập nhật tóm tắt giỏ hàng
+ */
+function updateCartSummary(summary) {
+    // Format number function
+    const formatNumber = (num) => {
+        return new Intl.NumberFormat('vi-VN').format(num);
+    };
+
+    // Cập nhật số lượng sản phẩm
+    const totalQtyEl = document.getElementById('total-quantity');
+    if (totalQtyEl) {
+        totalQtyEl.textContent = summary.totalQuantity;
+    }
+
+    // Cập nhật tạm tính
+    const subtotalEl = document.getElementById('subtotal');
+    if (subtotalEl) {
+        subtotalEl.textContent = formatNumber(summary.subtotal) + ' VND';
+    }
+
+    // Cập nhật giảm giá
+    const discountRow = document.getElementById('discount-row');
+    const discountEl = document.getElementById('discount');
+    if (summary.discount > 0) {
+        if (discountRow) discountRow.style.display = '';
+        if (discountEl) discountEl.textContent = '-' + formatNumber(summary.discount) + ' VND';
+    } else {
+        if (discountRow) discountRow.style.display = 'none';
+    }
+
+    // Cập nhật phí vận chuyển
+    const shippingEl = document.getElementById('shipping-fee');
+    if (shippingEl) {
+        if (summary.shippingFee === 0) {
+            shippingEl.textContent = 'Miễn phí';
+            shippingEl.classList.add('text-success');
+        } else {
+            shippingEl.textContent = formatNumber(summary.shippingFee) + ' VND';
+            shippingEl.classList.remove('text-success');
+        }
+    }
+
+    // Cập nhật tổng cộng
+    const totalEl = document.getElementById('total');
+    if (totalEl) {
+        totalEl.textContent = formatNumber(summary.total) + ' VND';
+    }
 }

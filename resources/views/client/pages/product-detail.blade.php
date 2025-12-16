@@ -21,12 +21,12 @@
             <div class="row g-4">
                 <!-- Product Images -->
                 <div class="col-lg-6">
-                    <img src="{{ $product->firstImage ? asset('storage/Product/' . $product->firstImage->image) : asset('images/no-image-product.png') }}"
+                    <img src="{{ $product->firstImage ? asset('storage/' . $product->firstImage->image) : asset('images/no-image-product.png') }}"
                         class="product-image-main w-100 mb-3" id="mainImage" alt="{{ $product->name }}">
                     <div class="row g-2">
                         @foreach ($product->images as $image)
                             <div class="col-3">
-                                <img src="{{ $image->image ? asset('storage/Product/' . $image->image) : asset('images/no-image-product.png') }}"
+                                <img src="{{ $image->image ? asset('storage/' . $image->image) : asset('images/no-image-product.png') }}"
                                     class="product-thumbnail w-100 active" onclick="changeImage(this)">
                             </div>
                         @endforeach
@@ -46,13 +46,18 @@
 
                     <div class="mb-3">
                         <span class="fs-4 text-warning">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-half"></i>
+                            @for ($i = 1; $i <= 5; $i++)
+                                @if ($i <= floor($reviewStats['average']))
+                                    <i class="bi bi-star-fill"></i>
+                                @elseif ($i <= ceil($reviewStats['average']) && $reviewStats['average'] - floor($reviewStats['average']) >= 0.5)
+                                    <i class="bi bi-star-half"></i>
+                                @else
+                                    <i class="bi bi-star"></i>
+                                @endif
+                            @endfor
                         </span>
-                        <span class="text-muted ms-2">(4.5 sao - 128 đánh giá)</span>
+                        <span class="text-muted ms-2">({{ $reviewStats['average'] }} sao - {{ $reviewStats['total'] }} đánh
+                            giá)</span>
                     </div>
 
                     <div class="mb-4">
@@ -88,20 +93,18 @@
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex">
-                        @include('client.partials.addToCart-button', [
+                        @include('client.components.addToCart-button', [
                             'productId' => $product->id,
                             'stock' => $product->stock,
                             'class' => 'ms-2',
+                            'text' => 'Thêm vào giỏ',
                         ])
                         <div class="position-relative">
-                            @include('client.partials.wishlist-button', [
+                            @include('client.components.wishlist-button', [
                                 'productId' => $product->id,
                                 'active' => in_array($product->id, $wishlistProductIds),
                             ])
                         </div>
-                        <button class="btn btn-outline-custom btn-lg">
-                            <i class="bi bi-share"></i>
-                        </button>
                     </div>
 
                     <div class="mt-4 p-3 bg-light rounded">
@@ -129,7 +132,8 @@
                             <a class="nav-link active" data-bs-toggle="tab" href="#description">Mô Tả Chi Tiết</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#reviews">Đánh Giá (128)</a>
+                            <a class="nav-link" data-bs-toggle="tab" href="#reviews">Đánh Giá
+                                ({{ $reviewStats['total'] }})</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-bs-toggle="tab" href="#shipping">Vận Chuyển</a>
@@ -144,35 +148,183 @@
                             </p>
                         </div>
                         <div id="reviews" class="tab-pane fade">
-                            <h4 class="mb-4">Đánh Giá Khách Hàng</h4>
+                            <div class="row">
+                                <!-- Reviews Summary -->
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h2 class="display-4 mb-0">{{ $reviewStats['average'] }}</h2>
+                                            <div class="text-warning mb-2">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    @if ($i <= floor($reviewStats['average']))
+                                                        <i class="bi bi-star-fill"></i>
+                                                    @elseif ($i <= ceil($reviewStats['average']) && $reviewStats['average'] - floor($reviewStats['average']) >= 0.5)
+                                                        <i class="bi bi-star-half"></i>
+                                                    @else
+                                                        <i class="bi bi-star"></i>
+                                                    @endif
+                                                @endfor
+                                            </div>
+                                            <p class="text-muted mb-0">{{ $reviewStats['total'] }} đánh giá</p>
+                                        </div>
+                                        <div class="card-body border-top">
+                                            @foreach ($reviewStats['distribution'] as $star => $data)
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <span class="me-2" style="min-width: 60px;">{{ $star }} <i
+                                                            class="bi bi-star-fill text-warning"></i></span>
+                                                    <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                                        <div class="progress-bar bg-warning"
+                                                            style="width: {{ $data['percentage'] }}%"></div>
+                                                    </div>
+                                                    <span class="text-muted"
+                                                        style="min-width: 40px;">{{ $data['count'] }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
 
-                            @for ($i = 1; $i <= 3; $i++)
-                                <div class="card mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between">
-                                            <div class="d-flex">
-                                                <img src="https://i.pravatar.cc/50?img={{ $i }}"
-                                                    class="rounded-circle me-3" style="width: 50px; height: 50px;">
-                                                <div>
-                                                    <h6 class="mb-1">Khách hàng {{ $i }}</h6>
-                                                    <div class="text-warning mb-2">
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star-fill"></i>
-                                                        <i class="bi bi-star-fill"></i>
+                                <!-- Reviews List -->
+                                <div class="col-md-8">
+                                    <h4 class="mb-4">Đánh Giá Khách Hàng</h4>
+
+                                    @auth
+                                        @if ($canReview)
+                                            <!-- Review Form -->
+                                            <div class="card mb-4">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Viết đánh giá của bạn</h5>
+                                                    <form id="reviewForm">
+                                                        @csrf
+                                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Đánh giá của bạn</label>
+                                                            <div class="rating-input">
+                                                                @for ($i = 5; $i >= 1; $i--)
+                                                                    <input type="radio" name="rating"
+                                                                        value="{{ $i }}"
+                                                                        id="star{{ $i }}" required>
+                                                                    <label for="star{{ $i }}" class="star-label">
+                                                                        <i class="bi bi-star-fill"></i>
+                                                                    </label>
+                                                                @endfor
+                                                            </div>
+                                                            <small class="text-danger d-none" id="ratingError">Vui lòng chọn
+                                                                số sao</small>
+                                                        </div>
+
+                                                        <div class="mb-3">
+                                                            <label for="comment" class="form-label">Nhận xét</label>
+                                                            <textarea class="form-control" id="comment" name="comment" rows="4" minlength="10" maxlength="500"
+                                                                required placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm (tối thiểu 10 ký tự)"></textarea>
+                                                            <div class="d-flex justify-content-between">
+                                                                <small class="text-danger d-none" id="commentError"></small>
+                                                                <small class="text-muted ms-auto"><span
+                                                                        id="charCount">0</span>/500</small>
+                                                            </div>
+                                                        </div>
+
+                                                        <button type="submit" class="btn btn-primary-custom"
+                                                            id="submitReviewBtn">
+                                                            <i class="bi bi-send"></i> Gửi đánh giá
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        @elseif (Auth::user()->reviews()->where('product_id', $product->id)->exists())
+                                            <div class="alert alert-info mb-4">
+                                                <i class="bi bi-info-circle"></i> Bạn đã đánh giá sản phẩm này rồi.
+                                            </div>
+                                        @else
+                                            <div class="alert alert-warning mb-4">
+                                                <i class="bi bi-exclamation-triangle"></i> Bạn cần mua sản phẩm này để có thể
+                                                đánh giá.
+                                            </div>
+                                        @endif
+                                    @else
+                                        <div class="alert alert-info mb-4">
+                                            <i class="bi bi-info-circle"></i> Vui lòng <a href="{{ route('login') }}">đăng
+                                                nhập</a> để viết đánh giá.
+                                        </div>
+                                    @endauth
+
+                                    <!-- User's Pending Review -->
+                                    @if (isset($userPendingReview) && $userPendingReview)
+                                        <div class="card mb-3 border-warning">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-clock-history"></i> Đánh giá của bạn đang chờ duyệt
+                                                    </span>
+                                                    <small
+                                                        class="text-muted">{{ $userPendingReview->created_at->diffForHumans() }}</small>
+                                                </div>
+                                                <div class="d-flex">
+                                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($userPendingReview->user->name) }}&background=random"
+                                                        class="rounded-circle me-3" style="width: 50px; height: 50px;">
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="mb-1">{{ $userPendingReview->user->name }} <span
+                                                                class="text-muted small">(Bạn)</span></h6>
+                                                        <div class="text-warning mb-2">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                @if ($i <= $userPendingReview->rating)
+                                                                    <i class="bi bi-star-fill"></i>
+                                                                @else
+                                                                    <i class="bi bi-star"></i>
+                                                                @endif
+                                                            @endfor
+                                                        </div>
+                                                        <p class="mb-0">{{ $userPendingReview->comment }}</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <small class="text-muted">{{ $i }} ngày trước</small>
                                         </div>
-                                        <p class="mb-0">Bánh rất ngon, kem mềm và chocolate đậm đà. Giao hàng đúng giờ và
-                                            đóng gói cẩn thận!</p>
-                                    </div>
-                                </div>
-                            @endfor
+                                    @endif
 
-                            <button class="btn btn-outline-custom">Xem Thêm Đánh Giá</button>
+                                    <!-- Reviews List -->
+                                    @forelse ($reviews as $review)
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <div class="d-flex">
+                                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($review->user->name) }}&background=random"
+                                                            class="rounded-circle me-3"
+                                                            style="width: 50px; height: 50px;">
+                                                        <div>
+                                                            <h6 class="mb-1">{{ $review->user->name }}</h6>
+                                                            <div class="text-warning mb-2">
+                                                                @for ($i = 1; $i <= 5; $i++)
+                                                                    @if ($i <= $review->rating)
+                                                                        <i class="bi bi-star-fill"></i>
+                                                                    @else
+                                                                        <i class="bi bi-star"></i>
+                                                                    @endif
+                                                                @endfor
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <small
+                                                        class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                                                </div>
+                                                <p class="mb-0">{{ $review->comment }}</p>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="text-center py-5">
+                                            <i class="bi bi-chat-square-text text-muted" style="font-size: 3rem;"></i>
+                                            <p class="text-muted mt-3">Chưa có đánh giá nào cho sản phẩm này.</p>
+                                        </div>
+                                    @endforelse
+
+                                    <!-- Pagination -->
+                                    @if ($reviews->hasPages())
+                                        <div class="mt-4">
+                                            {{ $reviews->links() }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
 
                         <div id="shipping" class="tab-pane fade">
@@ -206,17 +358,27 @@
                                 @foreach ($relatedProducts as $product)
                                     <div class="product-carousel-item" style="flex: 0 0 280px; max-width: 280px;">
                                         <div class="product-card card h-100">
-                                            <img src="{{ $product->firstImage ? asset('storage/Product/' . $product->firstImage->image) : asset('images/no-image-product.png') }}"
+                                            <img src="{{ $product->firstImage ? asset('storage/' . $product->firstImage->image) : asset('images/no-image-product.png') }}"
                                                 class="product-image" alt="{{ $product->name }}"
                                                 style="height: 200px; object-fit: cover;">
                                             <div class="card-body">
                                                 <h5 class="product-title text-truncate">{{ $product->name }}</h5>
                                                 <div class="product-rating mb-2">
-                                                    <i class="bi bi-star-fill text-warning"></i>
-                                                    <i class="bi bi-star-fill text-warning"></i>
-                                                    <i class="bi bi-star-fill text-warning"></i>
-                                                    <i class="bi bi-star-fill text-warning"></i>
-                                                    <i class="bi bi-star-half text-warning"></i>
+                                                    <span class="text-warning">
+                                                        @php
+                                                            $avgRating = round($product->reviews_avg ?? 0, 1);
+                                                        @endphp
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            @if ($i <= floor($avgRating))
+                                                                <i class="bi bi-star-fill"></i>
+                                                            @elseif ($i <= ceil($avgRating) && $avgRating - floor($avgRating) >= 0.5)
+                                                                <i class="bi bi-star-half"></i>
+                                                            @else
+                                                                <i class="bi bi-star"></i>
+                                                            @endif
+                                                        @endfor
+                                                    </span>
+                                                    <small class="text-muted">{{ $product->reviews_count ?? 0 }}</small>
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <span
