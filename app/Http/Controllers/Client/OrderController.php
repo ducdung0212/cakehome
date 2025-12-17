@@ -191,8 +191,8 @@ class OrderController extends Controller
             DB::rollBack();
 
             return redirect()
-                ->back()
-                ->withInput()
+                ->route('checkout.index')
+                ->withInput($request->except('voucher_code'))
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
             DB::rollBack();

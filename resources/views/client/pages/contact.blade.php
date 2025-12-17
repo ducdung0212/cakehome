@@ -10,6 +10,9 @@
         $workHours = $siteSettings['site_working_hours'] ?? 'Thứ 2 - Chủ Nhật: 8:00 - 22:00';
         $fbUrl = $siteSettings['site_facebook_url'] ?? '#';
         $igUrl = $siteSettings['site_instagram_url'] ?? '#';
+        $mapEmbedUrl =
+            $siteSettings['site_google_map_embed_url'] ??
+            'https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d1810.0177753560947!2d106.683930448508!3d10.729420935910417!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2s!5e0!3m2!1svi!2s!4v1765732926826!5m2!1svi!2s';
     @endphp
     <nav aria-label="breadcrumb" class="bg-light py-3">
         <div class="container">
@@ -74,9 +77,8 @@
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body p-2 h-100">
                             <div class="ratio ratio-0.39x1 h-100" style="min-height: 400px;">
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d1810.0177753560947!2d106.683930448508!3d10.729420935910417!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2s!5e0!3m2!1svi!2s!4v1765732926826!5m2!1svi!2s"
-                                    style="border:0; border-radius: 10px;" allowfullscreen="" loading="lazy">
+                                <iframe src="{{ $mapEmbedUrl }}" style="border:0; border-radius: 10px;" allowfullscreen=""
+                                    loading="lazy">
                                 </iframe>
                             </div>
                         </div>

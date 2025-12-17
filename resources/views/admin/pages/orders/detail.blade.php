@@ -376,8 +376,6 @@
                                         <span class="badge bg-secondary">COD (Tiền mặt)</span>
                                     @elseif($order->payment->payment_method === 'momo')
                                         <span class="badge bg-danger">MoMo</span>
-                                    @elseif($order->payment->payment_method === 'vnpay')
-                                        <span class="badge bg-primary">VNPay</span>
                                     @else
                                         <span
                                             class="badge bg-dark">{{ strtoupper($order->payment->payment_method) }}</span>

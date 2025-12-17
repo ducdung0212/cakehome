@@ -58,7 +58,10 @@
                             <li><a class="dropdown-item" href="/admin/profile">
                                     <i class="bi bi-person me-2"></i>Hồ Sơ
                                 </a></li>
-                            <li><a class="dropdown-item" href="/admin/settings">
+                            <li><a class="dropdown-item" href="/admin/profile">
+                                    <i class="bi bi-shield-lock me-2"></i>Đổi Mật Khẩu
+                                </a></li>
+                            <li><a class="dropdown-item" href="/admin/settings/general">
                                     <i class="bi bi-gear me-2"></i>Cài Đặt
                                 </a></li>
                             <li>

@@ -13,6 +13,7 @@ use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\OrderController;
 use App\Http\Controllers\Client\ReviewController;
 use App\Http\Controllers\Client\NotificationController;
+use App\Http\Controllers\Client\SocialAuthController;
 
 // TEST ROUTE - XÓA SAU KHI TEST XONG
 Route::get('/test-notification', function () {
@@ -88,6 +89,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetPasswordForm'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
+
+    // Social login (Google/Facebook)
+    Route::get('/auth/google', [SocialAuthController::class, 'redirectGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [SocialAuthController::class, 'callbackGoogle'])->name('auth.google.callback');
+    Route::get('/auth/facebook', [SocialAuthController::class, 'redirectFacebook'])->name('auth.facebook');
+    Route::get('/auth/facebook/callback', [SocialAuthController::class, 'callbackFacebook'])->name('auth.facebook.callback');
 });
 Route::middleware('auth.custom')->group(function () {
     //LOGOUT
@@ -141,14 +148,3 @@ Route::middleware('auth.custom')->group(function () {
 });
 
 Route::get('/activate/{token}', [AuthController::class, 'activate'])->name('activate.account');
-
-
-
-// Social Auth Routes (placeholder)
-Route::get('/auth/google', function () {
-    return redirect('/login')->with('info', 'Google login coming soon');
-})->name('auth.google');
-
-Route::get('/auth/facebook', function () {
-    return redirect('/login')->with('info', 'Facebook login coming soon');
-})->name('auth.facebook');

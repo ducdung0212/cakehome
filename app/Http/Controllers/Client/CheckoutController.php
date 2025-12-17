@@ -46,6 +46,7 @@ class CheckoutController extends Controller
                 } catch (\Throwable $e) {
                     $voucher_error = $e->getMessage();
                     $discount_amount = 0;
+                    $voucher_code = null;
                 }
             }
         }

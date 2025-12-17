@@ -17,16 +17,4 @@ return [
         'return_url' => env('MOMO_RETURN_URL', '/payment/momo/return'),
         'notify_url' => env('MOMO_NOTIFY_URL', '/payment/momo/notify'),
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | VNPay Payment Configuration (Dự phòng cho tương lai)
-    |--------------------------------------------------------------------------
-    */
-    'vnpay' => [
-        'tmn_code' => env('VNPAY_TMN_CODE', ''),
-        'hash_secret' => env('VNPAY_HASH_SECRET', ''),
-        'url' => env('VNPAY_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'),
-        'return_url' => env('VNPAY_RETURN_URL', '/payment/vnpay/return'),
-    ],
 ];

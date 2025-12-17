@@ -13,9 +13,11 @@
 
 @section('content')
     @php
-        $heroBg =
-            $siteSettings['home_hero_background_url'] ??
-            'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1600';
+        $heroBgPath = $siteSettings['home_hero_background_path'] ?? null;
+        $heroBg = $heroBgPath
+            ? asset('storage/' . $heroBgPath)
+            : $siteSettings['home_hero_background_url'] ??
+                'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1600';
         $heroTitle = $siteSettings['home_hero_title'] ?? 'HƯƠNG VỊ PHÉP MÀU';
         $heroSubtitle = $siteSettings['home_hero_subtitle'] ?? 'Khám phá bộ sưu tập bánh ngọt cao cấp';
         $announcement = $siteSettings['home_announcement_text'] ?? null;
@@ -196,75 +198,6 @@
                         <i class="bi bi-shield-check text-primary-custom" style="font-size: 3rem;"></i>
                         <h5 class="mt-3">An Toàn Vệ Sinh</h5>
                         <p class="text-muted">Đảm bảo tiêu chuẩn ATTP</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials -->
-    <section class="py-5">
-        <div class="container">
-            <h2 class="section-title">Khách Hàng Nói Gì</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm p-4 h-100">
-                        <div class="mb-3">
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                        </div>
-                        <p class="text-muted">"Bánh rất ngon, mềm và không quá ngọt. Giao hàng nhanh, đóng gói cẩn thận. Sẽ
-                            ủng hộ tiếp!"</p>
-                        <div class="d-flex align-items-center mt-auto">
-                            <img src="https://i.pravatar.cc/50?img=1" class="rounded-circle me-3" alt="Avatar">
-                            <div>
-                                <h6 class="mb-0">Nguyễn Thị Mai</h6>
-                                <small class="text-muted">Khách hàng thân thiết</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm p-4 h-100">
-                        <div class="mb-3">
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                        </div>
-                        <p class="text-muted">"Đặt bánh sinh nhật cho công ty, mọi người đều khen ngon. Thiết kế đẹp, giá
-                            hợp lý."</p>
-                        <div class="d-flex align-items-center mt-auto">
-                            <img src="https://i.pravatar.cc/50?img=2" class="rounded-circle me-3" alt="Avatar">
-                            <div>
-                                <h6 class="mb-0">Trần Văn Hoàng</h6>
-                                <small class="text-muted">Khách hàng doanh nghiệp</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm p-4 h-100">
-                        <div class="mb-3">
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                        </div>
-                        <p class="text-muted">"Macaron ở đây chính hiệu, ngon như ở Pháp. Mình đã thử nhiều nơi nhưng
-                            CakeHome ngon nhất!"</p>
-                        <div class="d-flex align-items-center mt-auto">
-                            <img src="https://i.pravatar.cc/50?img=3" class="rounded-circle me-3" alt="Avatar">
-                            <div>
-                                <h6 class="mb-0">Lê Thu Hà</h6>
-                                <small class="text-muted">Food Blogger</small>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

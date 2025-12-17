@@ -17,7 +17,7 @@
 
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('admin.settings.general.update') }}" method="POST">
+                <form action="{{ route('admin.settings.general.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="row g-3">
@@ -37,6 +37,13 @@
                             <label class="form-label">Địa chỉ</label>
                             <input type="text" class="form-control" name="site_address"
                                 value="{{ old('site_address', $settings['site_address'] ?? '') }}">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Google Maps (link nhúng iframe)</label>
+                            <input type="url" class="form-control" name="site_google_map_embed_url"
+                                value="{{ old('site_google_map_embed_url', $settings['site_google_map_embed_url'] ?? '') }}"
+                                placeholder="Truy cập Google Map, chọn vị trí shop, chọn share và nhúng bản đồ, copy đoạn <iframe src...">
                         </div>
 
                         <div class="col-md-6">
@@ -73,10 +80,26 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label">Banner (URL hình nền)</label>
-                            <input type="url" class="form-control" name="home_hero_background_url"
-                                value="{{ old('home_hero_background_url', $settings['home_hero_background_url'] ?? '') }}"
-                                placeholder="Ví dụ: https://...">
+                            <label class="form-label">Banner (tải ảnh lên)</label>
+
+                            <input type="file" class="form-control" name="home_hero_background_image" accept="image/*"
+                                id="banner_input" onchange="previewBanner(this)">
+
+                            <div class="mt-2">
+                                <small class="text-muted">Xem trước:</small>
+
+                                @php
+                                    $currentImage = null;
+                                    if (!empty($settings['home_hero_background_path'])) {
+                                        $currentImage = asset('storage/' . $settings['home_hero_background_path']);
+                                    } elseif (!empty($settings['home_hero_background_url'])) {
+                                        $currentImage = $settings['home_hero_background_url'];
+                                    }
+                                @endphp
+
+                                <img id="banner_preview" src="{{ $currentImage }}" class="img-thumbnail"
+                                    style="width: 250px; height: 160px; object-fit: cover; {{ $currentImage ? '' : 'display: none;' }}">
+                            </div>
                         </div>
 
                         <div class="col-md-6">
@@ -108,3 +131,23 @@
         </div>
     </div>
 @endsection
+<script>
+    function previewBanner(input) {
+        var preview = document.getElementById('banner_preview');
+        
+        // Nếu người dùng có chọn file
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                // Gán đường dẫn ảnh mới vào src
+                preview.src = e.target.result;
+                // Đảm bảo ảnh được hiển thị (trường hợp trước đó chưa có ảnh)
+                preview.style.display = 'block';
+            }
+
+            // Đọc file dưới dạng URL
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

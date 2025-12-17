@@ -11,6 +11,9 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\StaffAccountController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -23,6 +26,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         //DASHBOARD
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        //REPORTS
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [ReportController::class, 'index'])->name('index');
+            Route::get('/revenue', [ReportController::class, 'revenue'])->name('revenue');
+        });
+
         //SETTINGS
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/general', [SettingController::class, 'general'])->name('general');
@@ -33,6 +42,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         //LOGOUT
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+
+        //ACCOUNT (admin/staff)
+        Route::get('/profile', [AccountController::class, 'profile'])->name('account.profile');
+        Route::post('/profile/password', [AccountController::class, 'updatePassword'])->name('account.password.update');
 
         //USERS - Customer Management
         Route::prefix('users')->name('users.')->group(function () {
@@ -59,51 +72,51 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/delete', [ReviewController::class, 'destroy'])->name('destroy');
         });
 
-        //CONTACTS
-        Route::prefix('contacts')->name('contacts.')->group(function () {
-            Route::get('/', [ContactController::class, 'index'])->name('index');
-            Route::get('/{id}', [ContactController::class, 'show'])->name('show');
-            Route::put('/{id}/status', [ContactController::class, 'updateStatus'])->name('updateStatus');
-            Route::delete('/{id}', [ContactController::class, 'destroy'])->name('destroy');
-        });
-
         //NOTIFICATIONS
         Route::prefix('notifications')->name('notifications.')->group(function () {
             Route::get('/', [NotificationController::class, 'index'])->name('index');
             Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('markAsRead');
             Route::get('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('markAllRead');
         });
+        //ADMIN MOI DUOC DUNG
+        Route::middleware(['permission'])->group(function () {
+            //STAFF/ADMIN ACCOUNTS
+            Route::prefix('staff')->name('staff.')->group(function () {
+                Route::get('/', [StaffAccountController::class, 'index'])->name('index');
+                Route::get('/create', [StaffAccountController::class, 'create'])->name('create');
+                Route::post('/', [StaffAccountController::class, 'store'])->name('store');
+                Route::get('/{id}/edit', [StaffAccountController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [StaffAccountController::class, 'update'])->name('update');
+            });
 
-        //VOUCHERS
-        Route::prefix('vouchers')->name('vouchers.')->group(function () {
-            Route::get('/', [VoucherController::class, 'index'])->name('index');
-            Route::get('/create', [VoucherController::class, 'create'])->name('create');
-            Route::post('/', [VoucherController::class, 'store'])->name('store');
-            Route::get('/{id}/edit', [VoucherController::class, 'edit'])->name('edit');
-            Route::post('/{id}/update', [VoucherController::class, 'update'])->name('update');
-            Route::post('/delete', [VoucherController::class, 'destroy'])->name('destroy');
-        });
-    });
+            //PRODUCTS
+            Route::prefix('products')->name('products.')->group(function () {
+                Route::get('/', [ProductController::class, 'index'])->name('index');
+                Route::get('/create', [ProductController::class, 'create'])->name('create');
+                Route::post('/', [ProductController::class, 'store'])->name('store');
+                Route::get('/{id}/edit', [ProductController::class, 'edit'])->name('edit');
+                Route::post('/{id}/update', [ProductController::class, 'update'])->name('update');
+                Route::post('/delete', [ProductController::class, 'destroy'])->name('destroy');
+                Route::post('/delete-image/{id}', [ProductController::class, 'deleteImage'])->name('deleteImage');
+            });
 
-    Route::middleware(['permission'])->group(function () {
-        //PRODUCTS
-        Route::prefix('products')->name('products.')->group(function () {
-            Route::get('/', [ProductController::class, 'index'])->name('index');
-            Route::get('/create', [ProductController::class, 'create'])->name('create');
-            Route::post('/', [ProductController::class, 'store'])->name('store');
-            Route::get('/{id}/edit', [ProductController::class, 'edit'])->name('edit');
-            Route::post('/{id}/update', [ProductController::class, 'update'])->name('update');
-            Route::post('/delete', [ProductController::class, 'destroy'])->name('destroy');
-            Route::post('/delete-image/{id}', [ProductController::class, 'deleteImage'])->name('deleteImage');
-        });
-
-        //CATEGORIES
-        Route::prefix('categories')->name('categories.')->group(function () {
-            Route::get('/', [CategoryController::class, 'index'])->name('index');
-            Route::post('/add', [CategoryController::class, 'add'])->name('add');
-            Route::get('/{id}/edit', [CategoryController::class, 'edit'])->name('edit');
-            Route::post('/{id}/update', [CategoryController::class, 'update'])->name('update');
-            Route::post('/delete', [CategoryController::class, 'delete'])->name('delete');
+            //CATEGORIES
+            Route::prefix('categories')->name('categories.')->group(function () {
+                Route::get('/', [CategoryController::class, 'index'])->name('index');
+                Route::post('/add', [CategoryController::class, 'add'])->name('add');
+                Route::get('/{id}/edit', [CategoryController::class, 'edit'])->name('edit');
+                Route::post('/{id}/update', [CategoryController::class, 'update'])->name('update');
+                Route::post('/delete', [CategoryController::class, 'delete'])->name('delete');
+            });
+            //VOUCHERS
+            Route::prefix('vouchers')->name('vouchers.')->group(function () {
+                Route::get('/', [VoucherController::class, 'index'])->name('index');
+                Route::get('/create', [VoucherController::class, 'create'])->name('create');
+                Route::post('/', [VoucherController::class, 'store'])->name('store');
+                Route::get('/{id}/edit', [VoucherController::class, 'edit'])->name('edit');
+                Route::post('/{id}/update', [VoucherController::class, 'update'])->name('update');
+                Route::post('/delete', [VoucherController::class, 'destroy'])->name('destroy');
+            });
         });
     });
 });

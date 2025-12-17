@@ -76,28 +76,6 @@
     </div>
 </section>
 
-<!-- Our Team -->
-<section class="py-5">
-    <div class="container">
-        <h2 class="section-title">Đội Ngũ Của Chúng Tôi</h2>
-        <div class="row g-4">
-            @for($i = 1; $i <= 4; $i++)
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow-sm">
-                    <img src="https://i.pravatar.cc/300?img={{ $i }}" class="card-img-top" alt="Team">
-                    <div class="card-body text-center">
-                        <h5>Nguyễn Văn {{ $i == 1 ? 'A' : ($i == 2 ? 'B' : ($i == 3 ? 'C' : 'D')) }}</h5>
-                        <p class="text-muted mb-0">
-                            {{ $i == 1 ? 'Founder & CEO' : ($i == 2 ? 'Head Chef' : ($i == 3 ? 'Marketing Manager' : 'Operations Manager')) }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            @endfor
-        </div>
-    </div>
-</section>
-
 <!-- Achievements -->
 <section class="py-5 bg-primary-custom text-white">
     <div class="container">

@@ -85,8 +85,8 @@ class ProductController extends Controller
             // Xử lý upload hình ảnh
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
-                    $fileName = now()->timestamp . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                    $imagePath = $image->storeAs('Product', $fileName, 'public');
+                    $fileName =Str::slug($request->name).'_'.now()->timestamp . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                    $imagePath = $image->storeAs('Products', $fileName, 'public');
 
                     ProductImage::create([
                         'product_id' => $product->id,

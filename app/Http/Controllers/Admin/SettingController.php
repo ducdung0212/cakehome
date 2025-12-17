@@ -10,17 +10,6 @@ use Illuminate\Support\Facades\Cache;
 
 class SettingController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $user = Auth::guard('admin')->user();
-            if (!$user || ($user->role?->name ?? null) !== 'admin') {
-                abort(403);
-            }
-            return $next($request);
-        });
-    }
-
     public function general()
     {
         $settings = config('site_settings', []);
@@ -39,7 +28,8 @@ class SettingController extends Controller
             'site_working_hours' => ['nullable', 'string', 'max:255'],
             'site_facebook_url' => ['nullable', 'url', 'max:255'],
             'site_instagram_url' => ['nullable', 'url', 'max:255'],
-            'home_hero_background_url' => ['nullable', 'url', 'max:500'],
+            'site_google_map_embed_url' => ['nullable', 'url', 'max:1000'],
+            'home_hero_background_image' => ['nullable', 'image', 'max:5120'],
             'home_hero_title' => ['nullable', 'string', 'max:255'],
             'home_hero_subtitle' => ['nullable', 'string', 'max:255'],
             'home_announcement_text' => ['nullable', 'string', 'max:500'],
@@ -53,12 +43,17 @@ class SettingController extends Controller
             'site_working_hours' => $data['site_working_hours'] ?? null,
             'site_facebook_url' => $data['site_facebook_url'] ?? null,
             'site_instagram_url' => $data['site_instagram_url'] ?? null,
-            'home_hero_background_url' => $data['home_hero_background_url'] ?? null,
+            'site_google_map_embed_url' => $data['site_google_map_embed_url'] ?? null,
             'home_hero_title' => $data['home_hero_title'] ?? null,
             'home_hero_subtitle' => $data['home_hero_subtitle'] ?? null,
             'home_announcement_text' => $data['home_announcement_text'] ?? null,
             'client_show_vouchers' => isset($data['client_show_vouchers']) ? '1' : '0',
         ];
+
+        if ($request->hasFile('home_hero_background_image')) {
+            $path = $request->file('home_hero_background_image')->store('images', 'public');
+            $kv['home_hero_background_path'] = $path;
+        }
 
         foreach ($kv as $key => $value) {
             Setting::updateOrCreate(['key' => $key], ['value' => $value]);

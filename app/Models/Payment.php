@@ -53,11 +53,6 @@ class Payment extends Model
         return $this->payment_method === 'momo';
     }
 
-    public function isVnpay()
-    {
-        return $this->payment_method === 'vnpay';
-    }
-
     // Scopes
     public function scopePending($query)
     {

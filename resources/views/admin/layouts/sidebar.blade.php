@@ -74,6 +74,15 @@
                         <span>Khách Hàng</span>
                     </a>
                 </li>
+
+                @if ($userRole == 'admin')
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/staff*') ? 'active' : '' }}" href="/admin/staff">
+                            <i class="bi bi-person-badge"></i>
+                            <span>Nhân Viên</span>
+                        </a>
+                    </li>
+                @endif
                 @if ($userRole == 'admin')
                     <!-- Vouchers -->
                     <li class="nav-item">
