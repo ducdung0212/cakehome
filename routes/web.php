@@ -7,53 +7,13 @@ use App\Http\Controllers\Client\ForgotPasswordController;
 use App\Http\Controllers\Client\AccountController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\ProductController;
-use App\Http\Controllers\Client\WishListController;
+use App\Http\Controllers\Client\WishlistController;
 use App\Http\Controllers\Client\CartItemController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\OrderController;
 use App\Http\Controllers\Client\ReviewController;
 use App\Http\Controllers\Client\NotificationController;
 use App\Http\Controllers\Client\SocialAuthController;
-
-// TEST ROUTE - XÓA SAU KHI TEST XONG
-Route::get('/test-notification', function () {
-    $user = App\Models\User::where('role_id', 3)->first();
-    if (!$user) {
-        return 'No customer user found';
-    }
-
-    $beforeCount = App\Models\Notification::count();
-
-    $order = App\Models\Order::create([
-        'user_id' => $user->id,
-        'subtotal_price' => 100000,
-        'total_price' => 130000,
-        'discount_amount' => 0,
-        'status' => 'pending',
-        'delivery_method' => 'delivery',
-        'notes' => 'Test order for notification',
-    ]);
-
-    sleep(1);
-
-    $afterCount = App\Models\Notification::count();
-    $adminNotifs = App\Models\Notification::whereIn('user_id', [1, 2, 3, 4])
-        ->where('created_at', '>=', now()->subMinutes(1))
-        ->get();
-
-    $order->delete();
-
-    return [
-        'order_created' => $order->id,
-        'notifications_before' => $beforeCount,
-        'notifications_after' => $afterCount,
-        'new_notifications' => $afterCount - $beforeCount,
-        'admin_notifications' => $adminNotifs->count(),
-        'admin_notif_details' => $adminNotifs->map(function ($n) {
-            return "User {$n->user_id}: {$n->message}";
-        })
-    ];
-});
 
 // Client Routes
 
@@ -101,10 +61,10 @@ Route::middleware('auth.custom')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     //WISHLIST
-    Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/toggle/{product_id}', [WishListController::class, 'toggle'])->name('wishlist.toggle');
-    Route::post('/wishlist/add-all-to-cart', [WishListController::class, 'addAllToCart'])->name('wishlist.addAllToCart');
-    Route::post('/wishlist/clear-all', [WishListController::class, 'clearAll'])->name('wishlist.clearAll');
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle/{product_id}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::post('/wishlist/add-all-to-cart', [WishlistController::class, 'addAllToCart'])->name('wishlist.addAllToCart');
+    Route::post('/wishlist/clear-all', [WishlistController::class, 'clearAll'])->name('wishlist.clearAll');
 
     //CHECKOUT
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Services\VoucherService;
@@ -14,14 +15,61 @@ class CartItemController extends Controller
 {
     public function index(Request $request, VoucherService $voucherService)
     {
-        $cartItems = CartItem::where('user_id', Auth::id())
-            ->with(['product.firstImage'])
-            ->paginate(8);
+        $perPage = 8;
 
-        // Tính toán tóm tắt đơn hàng
-        $allCartItems = CartItem::where('user_id', Auth::id())
-            ->with('product')
-            ->get();
+        if (Auth::check()) {
+            $cartItems = CartItem::where('user_id', Auth::id())
+                ->with(['product.firstImage'])
+                ->paginate($perPage);
+
+            // Tính toán tóm tắt đơn hàng
+            $allCartItems = CartItem::where('user_id', Auth::id())
+                ->with('product')
+                ->get();
+        } else {
+            $sessionCart = session()->get('cart', []);
+            $productIds = array_map('intval', array_keys($sessionCart));
+
+            $productsById = Product::query()
+                ->whereIn('id', $productIds)
+                ->with('firstImage')
+                ->get()
+                ->keyBy('id');
+
+            $items = [];
+            foreach ($productIds as $productId) {
+                $details = $sessionCart[$productId] ?? null;
+                $product = $productsById->get($productId);
+                if (!$details || !$product) {
+                    continue;
+                }
+
+                $cartItem = new CartItem([
+                    'user_id' => null,
+                    'product_id' => $productId,
+                    'quantity' => (int) ($details['quantity'] ?? 0),
+                ]);
+                $cartItem->setRelation('product', $product);
+                $items[] = $cartItem;
+            }
+
+            $page = max(1, (int) $request->query('page', 1));
+            $total = count($items);
+            $pageItems = array_slice($items, ($page - 1) * $perPage, $perPage);
+
+            $cartItems = new LengthAwarePaginator(
+                $pageItems,
+                $total,
+                $perPage,
+                $page,
+                [
+                    'path' => $request->url(),
+                    'query' => $request->query(),
+                ]
+            );
+
+            $allCartItems = collect($items);
+        }
 
         $subtotal_price = 0;
         $totalQuantity = 0;
@@ -147,7 +195,7 @@ class CartItemController extends Controller
                 session()->put('cart', $cart);
             }
             $count = count($cart);
-            $cartSummary = ['subtotal' => 0, 'total' => 0, 'totalQuantity' => 0, 'discount' => 0, 'shippingFee' => 0];
+            $cartSummary = $this->calculateSessionCartSummary($cart);
         }
 
         return response()->json([
@@ -199,7 +247,7 @@ class CartItemController extends Controller
                 session()->put('cart', $cart);
             }
             $count = count($cart);
-            $cartSummary = ['subtotal' => 0, 'total' => 0, 'totalQuantity' => 0, 'discount' => 0, 'shippingFee' => 0];
+            $cartSummary = $this->calculateSessionCartSummary($cart);
         }
 
         return response()->json([
@@ -242,7 +290,9 @@ class CartItemController extends Controller
         }
 
         $discount = 0;
-        $shippingFee = $subtotal >= 500000 ? 0 : 30000;
+        $shippingFeeConfig = (float) config('site_settings.shipping_fee', 30000);
+        $freeShippingThreshold = (float) config('site_settings.free_shipping_threshold', 500000);
+        $shippingFee = $subtotal >= $freeShippingThreshold ? 0 : $shippingFeeConfig;
         $total = $subtotal - $discount + $shippingFee;
 
         return [
@@ -251,6 +301,33 @@ class CartItemController extends Controller
             'discount' => $discount,
             'shippingFee' => $shippingFee,
             'total' => $total
+        ];
+    }
+
+    private function calculateSessionCartSummary(array $cart): array
+    {
+        $subtotal = 0;
+        $totalQuantity = 0;
+
+        foreach ($cart as $details) {
+            $price = (float) ($details['price'] ?? 0);
+            $qty = (int) ($details['quantity'] ?? 0);
+            $subtotal += $price * $qty;
+            $totalQuantity += $qty;
+        }
+
+        $discount = 0;
+        $shippingFeeConfig = (float) config('site_settings.shipping_fee', 30000);
+        $freeShippingThreshold = (float) config('site_settings.free_shipping_threshold', 500000);
+        $shippingFee = $subtotal >= $freeShippingThreshold ? 0 : $shippingFeeConfig;
+        $total = $subtotal - $discount + $shippingFee;
+
+        return [
+            'subtotal' => $subtotal,
+            'totalQuantity' => $totalQuantity,
+            'discount' => $discount,
+            'shippingFee' => $shippingFee,
+            'total' => $total,
         ];
     }
 }

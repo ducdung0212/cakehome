@@ -55,7 +55,7 @@ function removeFromCart(productId, btnElement) {
     if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
 
     fetch('/cart/remove', {
-        method: 'POST', 
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': csrfToken
@@ -69,7 +69,7 @@ function removeFromCart(productId, btnElement) {
                 updateCartCount(data.cart_count);
 
                 // Xóa dòng sản phẩm đó khỏi giao diện (DOM)
-                const rowItem = document.getElementById('cart-item-${productId}');
+                const rowItem = document.getElementById(`cart-item-${productId}`);
                 if (rowItem) {
                     rowItem.remove();
                 }

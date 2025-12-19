@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\OrderStatusHistory;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\ShippingAddress;
 use App\Models\VoucherUsage;
 use App\Models\Notification;
@@ -40,6 +41,33 @@ class OrderController extends Controller
 
             if ($cartItems->isEmpty()) {
                 return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống!');
+            }
+
+            // 1.1 Kiểm tra & trừ tồn kho (giữ hàng) để tránh oversell
+            $productIds = $cartItems->pluck('product_id')->unique()->values();
+            $productsById = Product::whereIn('id', $productIds)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($cartItems as $item) {
+                $product = $productsById->get($item->product_id);
+                if (!$product) {
+                    throw new \RuntimeException('Sản phẩm không tồn tại hoặc đã bị xóa.');
+                }
+
+                $buyQty = (int) $item->quantity;
+                if ($buyQty <= 0) {
+                    throw new \RuntimeException('Số lượng sản phẩm không hợp lệ.');
+                }
+
+                if ((int) $product->stock < $buyQty) {
+                    throw new \RuntimeException("Sản phẩm '{$product->name}' không đủ tồn kho. Còn lại: {$product->stock}.");
+                }
+
+                $product->stock = (int) $product->stock - $buyQty;
+                $product->status = $product->stock > 0 ? 'in_stock' : 'out_of_stock';
+                $product->save();
             }
 
             // 2. Tính toán giá

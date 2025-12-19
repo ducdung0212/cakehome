@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\Notification;
 use App\Models\User;
+use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class OrderObserver
 {
@@ -37,6 +39,7 @@ class OrderObserver
     {
         // Kiểm tra xem status có thay đổi không
         if ($order->isDirty('status')) {
+            $oldStatus = $order->getOriginal('status');
             $newStatus = $order->status;
 
             // Map status sang message tiếng Việt
@@ -73,6 +76,11 @@ class OrderObserver
             // === GỬi THÔNG BÁO CHO ADMIN ===
             // Thông báo khi đơn hàng bị hủy
             if ($newStatus === 'cancelled') {
+                // Hoàn lại tồn kho khi đơn bị hủy (chỉ hoàn 1 lần theo lần chuyển trạng thái)
+                if ($oldStatus !== 'cancelled') {
+                    $this->restoreStockForCancelledOrder($order);
+                }
+
                 $this->sendAdminNotification(
                     'Đơn hàng #' . $order->id . ' đã bị hủy',
                     'Khách hàng ' . $order->user->name . ' đã hủy đơn hàng #' . $order->id . '. Lý do: ' . ($notes ?? 'Không rõ'),
@@ -84,6 +92,35 @@ class OrderObserver
             // Dọn dẹp thuộc tính tạm
             unset($order->status_notes);
         }
+    }
+
+    private function restoreStockForCancelledOrder(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            $items = $order->orderItems()->select(['product_id', 'quantity'])->get();
+            if ($items->isEmpty()) {
+                return;
+            }
+
+            $productIds = $items->pluck('product_id')->unique()->values();
+            $productsById = Product::whereIn('id', $productIds)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($items as $item) {
+                $product = $productsById->get($item->product_id);
+                if (!$product) {
+                    continue;
+                }
+
+                $product->stock = (int) $product->stock + (int) $item->quantity;
+                if ($product->stock > 0) {
+                    $product->status = 'in_stock';
+                }
+                $product->save();
+            }
+        });
     }
 
     /**
